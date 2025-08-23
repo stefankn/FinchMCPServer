@@ -6,6 +6,9 @@
 //
 
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 actor APIClient {
 
@@ -52,9 +55,8 @@ actor APIClient {
         return try decoder.decode(Response.self, from: data)
     }
     
-    private func request(_ request: URLRequest, waitsForConnectivity: Bool = false) async throws -> (Data, URLResponse) {
+    private func request(_ request: URLRequest) async throws -> (Data, URLResponse) {
         let configuration = URLSessionConfiguration.default
-        configuration.waitsForConnectivity = waitsForConnectivity
         let session = URLSession(configuration: configuration)
         
         do {
