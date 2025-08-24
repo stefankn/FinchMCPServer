@@ -1,5 +1,5 @@
 {
-  "originHash" : "c52ea9eb55a9ba61adf75929634ef68f163983a31105dd4b1312028b5d48f5f0",
+  "originHash" : "8ccb9f9043245db153fa365a02ff4396b635062a475f1c4251eedfa13f9b6e0e",
   "pins" : [
     {
       "identity" : "eventsource",
@@ -16,7 +16,7 @@
       "location" : "https://github.com/stefankn/FinchProtocol.git",
       "state" : {
         "branch" : "main",
-        "revision" : "5dbb992db495f0452e2d30451bd74d79100e33d2"
+        "revision" : "4e0b0e9eb75c4bce6cb62f1512ca4334e1549bf2"
       }
     },
     {

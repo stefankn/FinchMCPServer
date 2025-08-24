@@ -52,7 +52,7 @@ await server.withMethodHandler(ListTools.self) { _ in
                 "type": "object",
                 "properties": .object([
                     "playlistId": .object([
-                        "type": "string",
+                        "type": "int",
                         "description": .string("The identifier for the playlist to play")
                     ])
                 ])
