@@ -69,7 +69,7 @@ await server.withMethodHandler(ListTools.self) { _ in
 await server.withMethodHandler(CallTool.self) { parameters in
     do {
         switch parameters.name {
-        case "playlists":
+        case "get_playlists":
             let playlists = try await apiClient.getPlaylists()
             let json = try JSONEncoder().encode(playlists)
             return .init(content: [.text(String(data: json, encoding: .utf8) ?? "" )], isError: false)
