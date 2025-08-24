@@ -12,14 +12,17 @@ struct Environment {
     // MARK: - Properties
     
     let host: URL
+    let finchHost: String
+    let finchPort: Int
     
     
     
     // MARK: - Construction
     
     init() throws {
-        let host = ProcessInfo.processInfo.environment["FINCH_HOST"]
-        if host == nil, let data = try? String(contentsOfFile: ".env", encoding: .utf8) {
+        
+        // Read from .env file if available
+        if let data = try? String(contentsOfFile: ".env", encoding: .utf8) {
             data
                 .components(separatedBy: .newlines)
                 .compactMap { line -> (String, String)? in
@@ -40,9 +43,15 @@ struct Environment {
                 }
         }
         
-        if let host = ProcessInfo.processInfo.environment["FINCH_HOST"] {
-            if let url = URL(string: host) {
+        let apiHost = ProcessInfo.processInfo.environment["FINCH_API_HOST"]
+        let finchHost = ProcessInfo.processInfo.environment["FINCH_HOST"]
+        let finchPort = ProcessInfo.processInfo.environment["FINCH_PORT"]
+        
+        if let apiHost {
+            if let url = URL(string: apiHost) {
                 self.host = url
+                self.finchHost = finchHost ?? "host.docker.internal"
+                self.finchPort = Int(finchPort ?? "") ?? 8888
             } else {
                 throw ServerError.invalidHostEnvironmentVariable
             }
