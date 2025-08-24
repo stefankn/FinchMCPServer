@@ -55,8 +55,9 @@ await server.withMethodHandler(ListTools.self) { _ in
                         "type": "int",
                         "description": .string("The identifier for the playlist to play")
                     ])
-                ])
-            ])
+                ]),
+                "required": ["playlistId"]
+            ]),
         )
     ])
 }
