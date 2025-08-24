@@ -8,6 +8,7 @@
 import Foundation
 
 enum ToolError: Error {
+    case invalidArgument
     case invalidResponse
     case failure(Error)
     case unknownTool(String)

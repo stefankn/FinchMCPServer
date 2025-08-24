@@ -44,6 +44,16 @@ await server.withMethodHandler(ListTools.self) { _ in
                 "type": "object",
                 "properties": .object([:])
             ])
+        ),
+        Tool(
+            name: "play_playlist",
+            description: "Play a playlist",
+            inputSchema: .object([
+                "type": "object",
+                "properties": .object([
+                    "playlistId": .string("The identifier for the playlist to play")
+                ])
+            ])
         )
     ])
 }
@@ -63,11 +73,22 @@ await server.withMethodHandler(CallTool.self) { parameters in
             } else {
                 throw ToolError.invalidResponse
             }
+        case "play_playlist":
+            if let playlistId = parameters.arguments?["playlistId"]?.intValue {
+                let response = try await finchClient.send(.playPlaylist(playlistId: playlistId))
+                if case .playPlaylist = response {
+                    return .init(content: [.text("Playlist started")])
+                }
+                
+                throw ToolError.invalidResponse
+            }
+            
+            throw ToolError.invalidArgument
         default:
             throw ToolError.unknownTool(parameters.name)
         }
     } catch {
-        return .init(content: [.text("Tool failed: \(error.localizedDescription)")])
+        return .init(content: [.text("Tool failed: \(error.localizedDescription)")], isError: true)
     }
 }
 
