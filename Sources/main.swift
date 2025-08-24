@@ -51,7 +51,10 @@ await server.withMethodHandler(ListTools.self) { _ in
             inputSchema: .object([
                 "type": "object",
                 "properties": .object([
-                    "playlistId": .string("The identifier for the playlist to play")
+                    "playlistId": .object([
+                        "type": "string",
+                        "description": .string("The identifier for the playlist to play")
+                    ])
                 ])
             ])
         )
