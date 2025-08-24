@@ -74,7 +74,7 @@ await server.withMethodHandler(CallTool.self) { parameters in
                 let json = try JSONEncoder().encode(info)
                 return .init(content: [.text(String(data: json, encoding: .utf8) ?? "" )], isError: false)
             } else {
-                throw ToolError.invalidResponse
+                throw ToolError.invalidResponse(response)
             }
         case "play_playlist":
             if let playlistId = parameters.arguments?["playlistId"]?.intValue {
@@ -83,7 +83,7 @@ await server.withMethodHandler(CallTool.self) { parameters in
                     return .init(content: [.text("Playlist started")])
                 }
                 
-                throw ToolError.invalidResponse
+                throw ToolError.invalidResponse(response)
             }
             
             throw ToolError.invalidArgument
