@@ -30,8 +30,8 @@ let server = Server(
 await server.withMethodHandler(ListTools.self) { _ in
     .init(tools: [
         Tool(
-            name: "playlists",
-            description: "Returns a list of all available music playlists",
+            name: "get_playlists",
+            description: "Fetch a list of all available music playlists",
             inputSchema: .object([
                 "type": "object",
                 "properties": .object([:])
@@ -47,16 +47,20 @@ await server.withMethodHandler(ListTools.self) { _ in
         ),
         Tool(
             name: "play_playlist",
-            description: "Play a playlist",
+            description: "Play a playlist. When unclear if it needs to be shuffled, ask the user",
             inputSchema: .object([
                 "type": "object",
                 "properties": .object([
                     "playlistId": .object([
                         "type": "number",
                         "description": .string("The identifier for the playlist to play")
+                    ]),
+                    "shuffle": .object([
+                        "type": "boolean",
+                        "description": .string("Boolean to indicate if the playlist needs to be shuffled")
                     ])
                 ]),
-                "required": ["playlistId"]
+                "required": ["playlistId", "shuffle"]
             ]),
         )
     ])
@@ -78,8 +82,8 @@ await server.withMethodHandler(CallTool.self) { parameters in
                 throw ToolError.invalidResponse(response)
             }
         case "play_playlist":
-            if let playlistId = parameters.arguments?["playlistId"]?.intValue {
-                let response = try await finchClient.send(.playPlaylist(playlistId: playlistId))
+            if let playlistId = parameters.arguments?["playlistId"]?.intValue, let shuffle = parameters.arguments?["shuffle"]?.boolValue {
+                let response = try await finchClient.send(.playPlaylist(playlistId: playlistId, shuffle: shuffle))
                 if case .playPlaylist = response {
                     return .init(content: [.text("Playlist started")])
                 }
