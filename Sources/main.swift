@@ -31,7 +31,7 @@ await server.withMethodHandler(ListTools.self) { _ in
     .init(tools: [
         Tool(
             name: "get_playlists",
-            description: "Fetch a list of all available music playlists",
+            description: "Fetch a list of all available music playlists, including their IDs and names.",
             inputSchema: .object([
                 "type": "object",
                 "properties": .object([:])
@@ -47,7 +47,7 @@ await server.withMethodHandler(ListTools.self) { _ in
         ),
         Tool(
             name: "play_playlist",
-            description: "Play a playlist. When unclear if it needs to be shuffled, ask the user",
+            description: "Play a playlist",
             inputSchema: .object([
                 "type": "object",
                 "properties": .object([
