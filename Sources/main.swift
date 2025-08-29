@@ -76,6 +76,24 @@ await server.withMethodHandler(ListTools.self) { _ in
                 ]),
                 "required": ["playlistId", "shuffle"]
             ]),
+        ),
+        Tool(
+            name: "play_album",
+            description: "Play an album",
+            inputSchema: .object([
+                "type": "object",
+                "properties": .object([
+                    "albumId": .object([
+                        "type": "number",
+                        "description": .string("The identifier for the album to play")
+                    ]),
+                    "shuffle": .object([
+                        "type": "boolean",
+                        "description": .string("Boolean to indicate if the album needs to be shuffled")
+                    ])
+                ]),
+                "required": ["albumId", "shuffle"]
+            ]),
         )
     ])
 }
@@ -108,6 +126,17 @@ await server.withMethodHandler(CallTool.self) { parameters in
                 let response = try await finchClient.send(.playPlaylist(playlistId: playlistId, shuffle: shuffle))
                 if case .playPlaylist = response {
                     return .init(content: [.text("Playlist started")])
+                }
+                
+                throw ToolError.invalidResponse(response)
+            }
+            
+            throw ToolError.invalidArgument
+        case "play_album":
+            if let albumId = parameters.arguments?["albumId"]?.intValue, let shuffle = parameters.arguments?["shuffle"]?.boolValue {
+                let response = try await finchClient.send(.playAlbum(albumId: albumId, shuffle: shuffle))
+                if case .playAlbum = response {
+                    return .init(content: [.text("Started playing album")])
                 }
                 
                 throw ToolError.invalidResponse(response)
