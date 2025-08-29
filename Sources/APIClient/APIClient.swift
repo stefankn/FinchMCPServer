@@ -38,6 +38,10 @@ actor APIClient {
         try await get("/api/v1/playlists")
     }
     
+    func searchAlbums(query: String) async throws -> ItemsResponse<Album> {
+        try await get("/api/v1/albums", parameters: [("search", query), ("per", 100)])
+    }
+    
     
     
     // MARK: - Private Functions

@@ -38,6 +38,20 @@ await server.withMethodHandler(ListTools.self) { _ in
             ])
         ),
         Tool(
+            name: "search_albums",
+            description: "Search for albums, response includes artist, title and id.",
+            inputSchema: .object([
+                "type": "object",
+                "properties": .object([
+                    "query": .object([
+                        "type": "string",
+                        "description": .string("The search query")
+                    ])
+                ]),
+                "required": ["query"]
+            ])
+        ),
+        Tool(
             name: "now_playing",
             description: "Retrieve information about the currently playing song",
             inputSchema: .object([
@@ -73,6 +87,14 @@ await server.withMethodHandler(CallTool.self) { parameters in
             let playlists = try await apiClient.getPlaylists()
             let json = try JSONEncoder().encode(playlists)
             return .init(content: [.text(String(data: json, encoding: .utf8) ?? "" )], isError: false)
+        case "search_albums":
+            if let query = parameters.arguments?["query"]?.stringValue, !query.isEmpty {
+                let response = try await apiClient.searchAlbums(query: query)
+                let json = try JSONEncoder().encode(response.items)
+                return .init(content: [.text(String(data: json, encoding: .utf8) ?? "" )], isError: false)
+            }
+            
+            throw ToolError.invalidArgument
         case "now_playing":
             let response = try await finchClient.send(.nowPlayingInfo)
             if case let .nowPlayingInfo(info) = response {
