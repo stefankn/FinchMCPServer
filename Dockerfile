@@ -7,4 +7,4 @@ FROM swift:slim
 WORKDIR /app
 COPY --from=builder /build .
 COPY .env .build/release/
-CMD [ "sleep", "infinity" ]
+CMD [ "swift", "run" ]

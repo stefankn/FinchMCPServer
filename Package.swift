@@ -9,8 +9,7 @@ let package = Package(
         .macOS(.v15)
     ],
     dependencies: [
-        .package(url: "https://github.com/swift-server/swift-service-lifecycle.git", from: "2.3.0"),
-        .package(url: "https://github.com/modelcontextprotocol/swift-sdk.git", from: "0.10.0"),
+        .package(url: "https://github.com/Cocoanetics/SwiftMCP.git", branch: "main"),
         .package(url: "https://github.com/stefankn/FinchProtocol.git", branch: "main")
     ],
     targets: [
@@ -19,8 +18,7 @@ let package = Package(
         .executableTarget(
             name: "FinchMCPServer",
             dependencies: [
-                .product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
-                .product(name: "MCP", package: "swift-sdk"),
+                .product(name: "SwiftMCP", package: "SwiftMCP"),
                 .product(name: "FinchProtocol", package: "FinchProtocol")
             ]
         ),

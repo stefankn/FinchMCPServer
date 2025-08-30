@@ -6,157 +6,19 @@
 //
 
 import Foundation
-import MCP
-import ServiceLifecycle
+import SwiftMCP
 import Logging
 import FinchProtocol
 
 let environment = try Environment()
-let logger = Logger(label: "com.github.stefankn.finchmcpserver")
-
 let apiClient = APIClient(environment: environment)
 let finchClient = Client(host: environment.finchHost, port: environment.finchPort)
 
-let server = Server(
-    name: "Finch MCP server",
-    version: "1.0.0",
-    capabilities: .init(
-        prompts: .init(listChanged: true),
-        resources: .init(subscribe: true, listChanged: true),
-        tools: .init(listChanged: true)
-    )
-)
+let server = Server(finchClient: finchClient)
+let transport = HTTPSSETransport(server: server, port: 8018)
+transport.authorizationHandler = { _ in .authorized }
 
-await server.withMethodHandler(ListTools.self) { _ in
-    .init(tools: [
-        Tool(
-            name: "get_playlists",
-            description: "Fetch a list of all available music playlists, including their IDs and names.",
-            inputSchema: .object([
-                "type": "object",
-                "properties": .object([:])
-            ])
-        ),
-        Tool(
-            name: "search_albums",
-            description: "Search for albums, response includes artist, title and id.",
-            inputSchema: .object([
-                "type": "object",
-                "properties": .object([
-                    "query": .object([
-                        "type": "string",
-                        "description": .string("The search query")
-                    ])
-                ]),
-                "required": ["query"]
-            ])
-        ),
-        Tool(
-            name: "now_playing",
-            description: "Retrieve information about the currently playing song",
-            inputSchema: .object([
-                "type": "object",
-                "properties": .object([:])
-            ])
-        ),
-        Tool(
-            name: "play_playlist",
-            description: "Play a playlist",
-            inputSchema: .object([
-                "type": "object",
-                "properties": .object([
-                    "playlistId": .object([
-                        "type": "number",
-                        "description": .string("The identifier for the playlist to play")
-                    ]),
-                    "shuffle": .object([
-                        "type": "boolean",
-                        "description": .string("Boolean to indicate if the playlist needs to be shuffled")
-                    ])
-                ]),
-                "required": ["playlistId", "shuffle"]
-            ]),
-        ),
-        Tool(
-            name: "play_album",
-            description: "Play an album",
-            inputSchema: .object([
-                "type": "object",
-                "properties": .object([
-                    "albumId": .object([
-                        "type": "number",
-                        "description": .string("The identifier for the album to play")
-                    ]),
-                    "shuffle": .object([
-                        "type": "boolean",
-                        "description": .string("Boolean to indicate if the album needs to be shuffled")
-                    ])
-                ]),
-                "required": ["albumId", "shuffle"]
-            ]),
-        )
-    ])
-}
+let signalHandler = SignalHandler(transport: transport)
+await signalHandler.setup()
 
-await server.withMethodHandler(CallTool.self) { parameters in
-    do {
-        switch parameters.name {
-        case "get_playlists":
-            let playlists = try await apiClient.getPlaylists()
-            let json = try JSONEncoder().encode(playlists)
-            return .init(content: [.text(String(data: json, encoding: .utf8) ?? "" )], isError: false)
-        case "search_albums":
-            if let query = parameters.arguments?["query"]?.stringValue, !query.isEmpty {
-                let response = try await apiClient.searchAlbums(query: query)
-                let json = try JSONEncoder().encode(response.items)
-                return .init(content: [.text(String(data: json, encoding: .utf8) ?? "" )], isError: false)
-            }
-            
-            throw ToolError.invalidArgument
-        case "now_playing":
-            let response = try await finchClient.send(.nowPlayingInfo)
-            if case let .nowPlayingInfo(info) = response {
-                let json = try JSONEncoder().encode(info)
-                return .init(content: [.text(String(data: json, encoding: .utf8) ?? "" )], isError: false)
-            } else {
-                throw ToolError.invalidResponse(response)
-            }
-        case "play_playlist":
-            if let playlistId = parameters.arguments?["playlistId"]?.intValue, let shuffle = parameters.arguments?["shuffle"]?.boolValue {
-                let response = try await finchClient.send(.playPlaylist(playlistId: playlistId, shuffle: shuffle))
-                if case .playPlaylist = response {
-                    return .init(content: [.text("Playlist started")])
-                }
-                
-                throw ToolError.invalidResponse(response)
-            }
-            
-            throw ToolError.invalidArgument
-        case "play_album":
-            if let albumId = parameters.arguments?["albumId"]?.intValue, let shuffle = parameters.arguments?["shuffle"]?.boolValue {
-                let response = try await finchClient.send(.playAlbum(albumId: albumId, shuffle: shuffle))
-                if case .playAlbum = response {
-                    return .init(content: [.text("Started playing album")])
-                }
-                
-                throw ToolError.invalidResponse(response)
-            }
-            
-            throw ToolError.invalidArgument
-        default:
-            throw ToolError.unknownTool(parameters.name)
-        }
-    } catch {
-        return .init(content: [.text("Tool failed: \(error.localizedDescription)")], isError: true)
-    }
-}
-
-let transport = StdioTransport(logger: logger)
-let service = MCPService(server: server, transport: transport)
-let serviceGroup = ServiceGroup(
-    services: [service],
-    gracefulShutdownSignals: [.sigterm, .sigint],
-    logger: logger
-)
-
-try await serviceGroup.run()
+try await transport.run()
