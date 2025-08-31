@@ -7,4 +7,4 @@ FROM swift:slim
 WORKDIR /app
 COPY --from=builder /build .
 COPY .env .build/release/
-CMD [ "swift", "run" ]
+CMD [ ".build/release/FinchMCPServer" ]
