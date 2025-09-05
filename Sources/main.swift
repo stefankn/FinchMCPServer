@@ -15,8 +15,9 @@ let apiClient = APIClient(environment: environment)
 let finchClient = Client(host: environment.finchHost, port: environment.finchPort)
 
 let server = Server(finchClient: finchClient)
-let transport = HTTPSSETransport(server: server, port: 8018)
-transport.authorizationHandler = { _ in .authorized }
+let transport = StdioTransport(server: server)
+//let transport = HTTPSSETransport(server: server, port: 8018)
+//transport.authorizationHandler = { _ in .authorized }
 
 let signalHandler = SignalHandler(transport: transport)
 await signalHandler.setup()

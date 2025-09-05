@@ -8,7 +8,7 @@
 import Foundation
 import SwiftMCP
 
-public final class SignalHandler {
+public final class SignalHandler<T: Transport> {
     
     // MARK: - Private Properties
     
@@ -18,7 +18,7 @@ public final class SignalHandler {
     
     // MARK: - Construction
     
-    init(transport: HTTPSSETransport) {
+    init(transport: T) {
         self.state = State(transport: transport)
     }
     
@@ -39,13 +39,13 @@ extension SignalHandler {
         
         private var sigIntSource: DispatchSourceSignal?
         private var isShuttingDown = false
-        private weak var transport: HTTPSSETransport?
+        private weak var transport: T?
         
         
         
         // MARK: - Construction
         
-        init(transport: HTTPSSETransport) {
+        init(transport: T) {
             self.transport = transport
         }
         
