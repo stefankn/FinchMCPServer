@@ -45,6 +45,16 @@ actor Server {
         return response.items
     }
     
+    /**
+     Get all tracks of an album.
+     
+     - Parameter albumId: The id of the album
+     */
+    @MCPTool
+    func getAlbumTracks(albumId: Int) async throws -> [Track] {
+        try await apiClient.getTracks(for: albumId)
+    }
+    
     /// Retrieve information about the currently playing song.
     @MCPTool
     func nowPlaying() async throws -> NowPlayingInfo {
@@ -57,7 +67,7 @@ actor Server {
     }
     
     /**
-     Play a playlist
+     Play a playlist.
      
      - Parameter playlistId: The id of the playlist to play
      - Parameter shuffle: If the playlist tracks needs to be shuffled
@@ -73,7 +83,7 @@ actor Server {
     }
     
     /**
-     Play an album
+     Play an album.
      
      - Parameter albumId: The id of the album to play
      - Parameter shuffle: If the album tracks needs to be shuffled
@@ -89,7 +99,7 @@ actor Server {
     }
     
     /**
-     Plays the previous track in the queue
+     Plays the previous track in the queue.
      */
     @MCPTool
     func playPreviousTrack() async throws -> PlayResult {
@@ -102,7 +112,7 @@ actor Server {
     }
     
     /**
-     Plays the next track in the queue
+     Plays the next track in the queue.
      */
     @MCPTool
     func playNextTrack() async throws -> PlayResult {
@@ -115,7 +125,7 @@ actor Server {
     }
     
     /**
-     Starts playing the current track
+     Starts playing the current track.
      */
     @MCPTool
     func play() async throws -> PlayResult {
@@ -128,7 +138,7 @@ actor Server {
     }
     
     /**
-     Pauses the current track
+     Pauses the current track.
      */
     @MCPTool
     func pause() async throws -> String {
