@@ -87,4 +87,30 @@ actor Server {
 
         throw ToolError.invalidResponse(response)
     }
+    
+    /**
+     Plays the previous track in the queue
+     */
+    @MCPTool
+    func playPreviousTrack() async throws -> String {
+        let response = try await finchClient.send(.playPreviousTrack)
+        if case .playNextTrack = response {
+            return "Playing previous track"
+        }
+        
+        throw ToolError.invalidResponse(response)
+    }
+    
+    /**
+     Plays the next track in the queue
+     */
+    @MCPTool
+    func playNextTrack() async throws -> String {
+        let response = try await finchClient.send(.playNextTrack)
+        if case .playNextTrack = response {
+            return "Playing next track"
+        }
+        
+        throw ToolError.invalidResponse(response)
+    }
 }
