@@ -133,7 +133,7 @@ actor Server {
     @MCPTool
     func pause() async throws -> String {
         let response = try await finchClient.send(.pause)
-        if case .play = response {
+        if case .pause = response {
             return "Player paused"
         }
         
