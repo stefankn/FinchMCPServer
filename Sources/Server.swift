@@ -113,4 +113,30 @@ actor Server {
         
         throw ToolError.invalidResponse(response)
     }
+    
+    /**
+     Starts playing the current track
+     */
+    @MCPTool
+    func play() async throws -> String {
+        let response = try await finchClient.send(.play)
+        if case .play = response {
+            return "Started playing"
+        }
+        
+        throw ToolError.invalidResponse(response)
+    }
+    
+    /**
+     Pauses the current track
+     */
+    @MCPTool
+    func pause() async throws -> String {
+        let response = try await finchClient.send(.pause)
+        if case .play = response {
+            return "Player paused"
+        }
+        
+        throw ToolError.invalidResponse(response)
+    }
 }
