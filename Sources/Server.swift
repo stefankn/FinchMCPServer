@@ -92,10 +92,10 @@ actor Server {
      Plays the previous track in the queue
      */
     @MCPTool
-    func playPreviousTrack() async throws -> String {
+    func playPreviousTrack() async throws -> PlayResult {
         let response = try await finchClient.send(.playPreviousTrack)
-        if case .playNextTrack = response {
-            return "Playing previous track"
+        if case let .playNextTrack(result) = response {
+            return result
         }
         
         throw ToolError.invalidResponse(response)
@@ -118,10 +118,10 @@ actor Server {
      Starts playing the current track
      */
     @MCPTool
-    func play() async throws -> String {
+    func play() async throws -> PlayResult {
         let response = try await finchClient.send(.play)
-        if case .play = response {
-            return "Started playing"
+        if case let .play(result) = response {
+            return result
         }
         
         throw ToolError.invalidResponse(response)
