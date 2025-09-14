@@ -105,10 +105,10 @@ actor Server {
      Plays the next track in the queue
      */
     @MCPTool
-    func playNextTrack() async throws -> String {
+    func playNextTrack() async throws -> PlayResult {
         let response = try await finchClient.send(.playNextTrack)
-        if case .playNextTrack = response {
-            return "Playing next track"
+        if case let .playNextTrack(result) = response {
+            return result
         }
         
         throw ToolError.invalidResponse(response)
